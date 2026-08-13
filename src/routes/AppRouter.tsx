@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from '../components/layout/Layout'
 import { FavoritesPage } from '../pages/FavoritesPage'
+import { HealthCheckPage } from '../pages/HealthCheckPage'
 import { HomePage } from '../pages/HomePage'
 import { LoginPage } from '../pages/LoginPage'
 import { MovieDetailsPage } from '../pages/MovieDetailsPage'
@@ -15,6 +16,7 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/movie/:imdbID" element={<MovieDetailsPage />} />
+        <Route path="/health" element={<HealthCheckPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route

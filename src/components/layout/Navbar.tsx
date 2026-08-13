@@ -94,7 +94,10 @@ export function Navbar() {
         </nav>
 
         <p className="mt-1 text-[11px] leading-snug text-gray-500">
-          Designed with Claude Code by Tomola Oke, Frontend AI Engineering Intern at FlyRankAI
+          Designed with Claude Code by Tomola Oke, Frontend AI Engineering Intern at FlyRankAI ·{' '}
+          <NavLink to="/health" className="underline hover:text-gray-700">
+            Status
+          </NavLink>
         </p>
       </div>
 

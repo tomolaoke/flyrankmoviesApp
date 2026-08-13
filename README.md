@@ -32,7 +32,8 @@ src/
 ├── services/         # Model: talks to external systems (OMDb, Firebase)
 │   ├── omdbService.ts
 │   ├── authService.ts
-│   └── firestoreService.ts
+│   ├── firestoreService.ts
+│   └── healthService.ts   # OMDb/Firestore/env connectivity checks for /health
 ├── constants/          # Static config, e.g. curated landing-page movie IDs
 │   └── featuredMovies.ts
 ├── viewmodels/        # ViewModel: hooks that hold UI state and call services
@@ -42,19 +43,21 @@ src/
 │   ├── useAuthViewModel.ts
 │   ├── useFavoritesViewModel.ts
 │   ├── useSettingsViewModel.ts
+│   ├── useHealthCheckViewModel.ts
 │   └── useMovieRating.ts
 ├── context/           # Cross-cutting app state
 │   ├── AuthContext.tsx
 │   ├── AuthContextInstance.ts
 │   └── useAuthContext.ts
 ├── components/        # View: reusable, presentational UI pieces
-│   ├── common/         (Button, Input, Checkbox, Spinner, ErrorMessage, GoogleSignInButton, Pagination)
+│   ├── common/         (Button, Input, Checkbox, Spinner, ErrorMessage, GoogleSignInButton, Pagination, StatusBadge)
 │   ├── layout/          (Navbar, Layout)
 │   ├── movie/           (SearchBar, MovieList, MovieCard, RatingBadge)
 │   └── settings/        (SettingsForm)
 ├── pages/              # View: route-level screens composing the above
 │   ├── HomePage.tsx
 │   ├── MovieDetailsPage.tsx
+│   ├── HealthCheckPage.tsx
 │   ├── LoginPage.tsx
 │   ├── SignupPage.tsx
 │   ├── FavoritesPage.tsx
@@ -103,6 +106,11 @@ unit-testable hooks and services.
 - ♿ **Accessibility** — Labeled inputs, `aria-invalid`/`aria-describedby`
   wiring, `role="alert"` error messages, visible focus rings, and validation
   errors that only appear after a field is touched or the form is submitted.
+- 🩺 **Health check** — `/health` (linked as "Status" next to the footer
+  credit line) verifies required env vars are set, runs a live OMDb search
+  and renders the actual fetched results, probes Firestore connectivity, and
+  shows the current Firebase Auth state. Useful for diagnosing setup issues
+  without digging through devtools.
 
 ## Getting started
 
@@ -136,6 +144,9 @@ VITE_FIREBASE_APP_ID=your_app_id
 Important:
 - This file **must live in the same folder as `package.json`** (the Vite
   project root). Vite silently ignores env files placed anywhere else.
+- `VITE_OMDB_BASE_URL` has no built-in default — it must be set (to
+  `https://www.omdbapi.com/`) or every OMDb call throws an `Invalid URL`
+  error. `/health` (see Features above) will flag this immediately.
 - Your OMDb key must be **activated** — after requesting one at the link
   above, OMDb emails you an activation link; the key returns
   `401 Invalid API key!` until you click it.
@@ -207,6 +218,10 @@ npm run preview   # preview the production build locally
 | `npm run test:watch`  | Run Jest in watch mode                |
 
 ## Troubleshooting
+
+Start at **`/health`** ("Status" link in the footer) — it checks env var
+presence, does a live OMDb fetch, and probes Firestore/Auth in one place,
+which usually pinpoints these faster than the steps below.
 
 - **Blank page on load** — usually means Firebase `initializeApp()` threw
   because `.env.local` is missing or in the wrong folder. Check the browser
