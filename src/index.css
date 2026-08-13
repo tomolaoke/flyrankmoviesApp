@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base app styles that live outside Tailwind's utility system */
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Visible keyboard focus ring for accessibility (buttons, links, inputs) */
+:focus-visible {
+  outline: 2px solid #aa3bff;
+  outline-offset: 2px;
+}
