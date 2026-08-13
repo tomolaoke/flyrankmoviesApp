@@ -144,8 +144,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 Important:
 - This file **must live in the same folder as `package.json`** (the Vite
   project root). Vite silently ignores env files placed anywhere else.
-- `VITE_OMDB_BASE_URL` has no built-in default — it must be set (to
-  `https://www.omdbapi.com/`) or every OMDb call throws an `Invalid URL`
+- `VITE_OMDB_BASE_URL` has no built-in default or every OMDb call throws an `Invalid URL`
   error. `/health` (see Features above) will flag this immediately.
 - Your OMDb key must be **activated** — after requesting one at the link
   above, OMDb emails you an activation link; the key returns
