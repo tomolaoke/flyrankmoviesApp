@@ -121,7 +121,6 @@ cp .env.example .env.local
 ```
 
 ```ini
-# OMDb API — get a free key at https://www.omdbapi.com/apikey.aspx
 VITE_OMDB_API_KEY=your_omdb_api_key_here
 VITE_OMDB_BASE_URL=
 
