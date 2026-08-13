@@ -6,7 +6,7 @@
  */
 import type { Movie, MovieDetail } from '../models/Movie'
 
-const BASE_URL = import.meta.env.VITE_OMDB_BASE_URL || 'https://www.omdbapi.com/'
+const BASE_URL = import.meta.env.VITE_OMDB_BASE_URL
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY
 
 interface OmdbSearchResultRaw {
