@@ -4,7 +4,7 @@
  */
 import type { Movie, MovieDetail } from '../models/Movie'
 
-const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.org/3'
+const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL
 const API_TOKEN = import.meta.env.VITE_TMDB_API_TOKEN
 
 interface TmdbSearchResultRaw {
