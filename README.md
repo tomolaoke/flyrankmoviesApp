@@ -140,13 +140,13 @@ cp .env.example .env.local
 ```
 
 ```ini
-# TMDB — get a Read Access Token at https://www.themoviedb.org/settings/api
+
 VITE_TMDB_API_TOKEN=your_tmdb_api_token_here
-VITE_TMDB_BASE_URL=https://api.themoviedb.org/3
+VITE_TMDB_BASE_URL=
 
 # OMDb — get a key at https://www.omdbapi.com/apikey.aspx
 VITE_OMDB_API_KEY=your_omdb_api_key_here
-VITE_OMDB_BASE_URL=https://www.omdbapi.com/
+VITE_OMDB_BASE_URL=
 
 # Firebase — Firebase Console > Project Settings > General > Your apps
 VITE_FIREBASE_API_KEY=your_firebase_api_key
