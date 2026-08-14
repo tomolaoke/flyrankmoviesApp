@@ -5,13 +5,19 @@ interface MovieListProps {
   movies: Movie[]
   isFavorite: (imdbID: string) => boolean
   onToggleFavorite: (movie: Movie) => void
+  onWatchPreview?: (movie: Movie) => void
 }
 
 /** Responsive grid of movie results. */
-export function MovieList({ movies, isFavorite, onToggleFavorite }: MovieListProps) {
+export function MovieList({
+  movies,
+  isFavorite,
+  onToggleFavorite,
+  onWatchPreview,
+}: MovieListProps) {
   return (
     <ul
-      className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
       aria-label="Movie search results"
     >
       {movies.map((movie) => (
@@ -20,6 +26,7 @@ export function MovieList({ movies, isFavorite, onToggleFavorite }: MovieListPro
           movie={movie}
           isFavorite={isFavorite(movie.imdbID)}
           onToggleFavorite={onToggleFavorite}
+          onWatchPreview={onWatchPreview}
         />
       ))}
     </ul>

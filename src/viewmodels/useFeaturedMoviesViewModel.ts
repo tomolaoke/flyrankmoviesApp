@@ -1,14 +1,14 @@
 /**
  * ViewModel for the landing page's default grid, shown before the user
  * has searched for anything. Paginates through the curated
- * `FEATURED_IMDB_IDS` list, fetching only the current page's titles
+ * `FEATURED_TMDB_IDS` list, fetching only the current page's titles
  * (in parallel) rather than the whole list up front. Any individual
  * title that fails to load is skipped rather than failing the page.
  */
-import { useCallback, useEffect, useState } from 'react'
-import { FEATURED_IMDB_IDS } from '../constants/featuredMovies'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { FEATURED_TMDB_IDS } from '../constants/featuredMovies'
 import type { MovieDetail } from '../models/Movie'
-import { getMovieById } from '../services/omdbService'
+import { getMovieDetailsTmdb } from '../services/tmdbService'
 
 const PAGE_SIZE = 10
 
@@ -16,18 +16,20 @@ export function useFeaturedMoviesViewModel() {
   const [page, setPage] = useState(1)
   const [movies, setMovies] = useState<MovieDetail[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const isMountedRef = useRef(true)
 
-  const totalPages = Math.max(1, Math.ceil(FEATURED_IMDB_IDS.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(FEATURED_TMDB_IDS.length / PAGE_SIZE))
 
   useEffect(() => {
-    let isMounted = true
+    isMountedRef.current = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true)
 
     const start = (page - 1) * PAGE_SIZE
-    const idsForPage = FEATURED_IMDB_IDS.slice(start, start + PAGE_SIZE)
+    const idsForPage = FEATURED_TMDB_IDS.slice(start, start + PAGE_SIZE)
 
-    Promise.allSettled(idsForPage.map((id) => getMovieById(id))).then((results) => {
-      if (!isMounted) return
+    Promise.allSettled(idsForPage.map((id) => getMovieDetailsTmdb(id))).then((results) => {
+      if (!isMountedRef.current) return
       const loaded = results
         .filter((result): result is PromiseFulfilledResult<MovieDetail> => result.status === 'fulfilled')
         .map((result) => result.value)
@@ -36,7 +38,7 @@ export function useFeaturedMoviesViewModel() {
     })
 
     return () => {
-      isMounted = false
+      isMountedRef.current = false
     }
   }, [page])
 

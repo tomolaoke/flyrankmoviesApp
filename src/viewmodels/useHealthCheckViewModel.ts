@@ -27,8 +27,10 @@ export function useHealthCheckViewModel() {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     runChecks()
-  }, [runChecks])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return { envVars, omdb, firestore, isChecking, runChecks }
 }

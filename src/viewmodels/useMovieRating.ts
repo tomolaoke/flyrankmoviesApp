@@ -1,20 +1,27 @@
 /**
- * OMDb's search endpoint (`s=`) doesn't include IMDb ratings — only the
- * per-title detail endpoint (`i=`) does. This hook lazily fetches just
- * the rating for a single card so MovieList can show it without an
- * expensive detail call for every search result up front... it still
- * fires one call per visible card, which is fine for OMDb's free tier
- * but would need batching/caching at larger scale.
+ * Returns a movie's rating. TMDB search results already include a
+ * `vote_average` (surfaced on the Movie model), so when present we use it
+ * directly and skip the extra network call. OMDb's search endpoint doesn't
+ * include ratings, so for OMDb-backed titles we lazily fetch just the
+ * rating from the per-title detail endpoint. Failures degrade gracefully
+ * to "no rating" on the card.
  */
 import { useEffect, useState } from 'react'
+import type { Movie } from '../models/Movie'
 import { getMovieById } from '../services/omdbService'
 
-export function useMovieRating(imdbID: string) {
-  const [rating, setRating] = useState<string | null>(null)
+export function useMovieRating(movie: Movie) {
+  const [rating, setRating] = useState<string | null>(movie.rating ?? null)
 
   useEffect(() => {
+    if (movie.rating) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRating(movie.rating)
+      return
+    }
+
     let isMounted = true
-    getMovieById(imdbID)
+    getMovieById(movie.imdbID)
       .then((detail) => {
         if (isMounted) setRating(detail.imdbRating)
       })
@@ -24,7 +31,7 @@ export function useMovieRating(imdbID: string) {
     return () => {
       isMounted = false
     }
-  }, [imdbID])
+  }, [movie.imdbID, movie.rating])
 
   return rating
 }

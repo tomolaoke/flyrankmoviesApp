@@ -51,7 +51,10 @@ export function SettingsForm({ defaultValues, onSubmit, isSubmitting = false, su
     >
       {submitError && <ErrorMessage message={submitError} />}
       {submitSuccess && (
-        <p role="status" className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p
+          role="status"
+          className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-900/30 dark:text-green-300"
+        >
           {submitSuccess}
         </p>
       )}

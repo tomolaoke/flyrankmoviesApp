@@ -11,7 +11,9 @@ export function GoogleSignInButton({ onClick, disabled }: GoogleSignInButtonProp
       onClick={onClick}
       disabled={disabled}
       className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2
-        text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+        text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50
+        disabled:cursor-not-allowed disabled:opacity-60
+        dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path
