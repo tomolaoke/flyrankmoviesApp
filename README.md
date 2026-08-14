@@ -144,7 +144,6 @@ cp .env.example .env.local
 VITE_TMDB_API_TOKEN=your_tmdb_api_token_here
 VITE_TMDB_BASE_URL=
 
-# OMDb — get a key at https://www.omdbapi.com/apikey.aspx
 VITE_OMDB_API_KEY=your_omdb_api_key_here
 VITE_OMDB_BASE_URL=
 
