@@ -1,6 +1,6 @@
 # 🎬 FlyRank AI Movies
 
-_Designed with Claude Code by Tomola Oke, Frontend AI Engineering Intern at FlyRankAI_
+_Designed with Claude Code & Deepseek by Tomola Oke, Frontend AI Engineering Intern at FlyRankAI_
 
 ![Hero](src/assets/hero.png)
 
