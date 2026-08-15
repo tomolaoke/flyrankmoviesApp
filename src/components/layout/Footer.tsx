@@ -35,7 +35,7 @@ export function Footer() {
     <footer className="border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          🎬 FlyRank AI Movies — Designed with by{' '}
+          🎬 FlyRank AI Movies — Built and Designed by{' '}
           <a
             href="https://www.linkedin.com/in/tomolaoke"
             target="_blank"

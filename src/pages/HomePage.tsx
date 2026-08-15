@@ -11,6 +11,9 @@ import { useSearchMoviesViewModel } from '../viewmodels/useSearchMoviesViewModel
 import { useFavoritesViewModel } from '../viewmodels/useFavoritesViewModel'
 import { useFeaturedMoviesViewModel } from '../viewmodels/useFeaturedMoviesViewModel'
 import { useMovieListViewModel } from '../viewmodels/useMovieListViewModel'
+import { FeaturedSection } from '../components/featured/FeaturedSection'
+import { buildFeaturedContent } from '../constants/featuredContent'
+import { UserReviews } from '../components/reviews/UserReviews'
 
 /** Home / search page (View layer): cinematic hero + search + movie grids. */
 export function HomePage() {
@@ -35,6 +38,8 @@ export function HomePage() {
 
   const canLoadMore = currentPage < totalPages
   const spotlight = featuredMovies[0] ?? null
+  const featuredSpotlight = featuredMovies[1] ?? featuredMovies[0] ?? null
+  const featuredContent = buildFeaturedContent(featuredSpotlight)
 
   const heroSearchBar = (
     <SearchBar initialValue={query} onSearch={search} isLoading={isLoading} variant="hero" />
@@ -97,6 +102,14 @@ export function HomePage() {
               )}
             </section>
 
+            {/* Featured spotlight */}
+            <FeaturedSection
+              content={featuredContent}
+              onPlay={() => {
+                if (featuredSpotlight) handleWatchPreview(featuredSpotlight)
+              }}
+            />
+
             {/* Now Playing Grid */}
             <section aria-label="Now playing" className="flex flex-col gap-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Now Playing</h2>
@@ -144,6 +157,9 @@ export function HomePage() {
             </section>
           </>
         )}
+
+        {/* User Reviews */}
+        <UserReviews />
       </main>
 
       {/* Video Preview Modal */}

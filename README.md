@@ -8,7 +8,8 @@ A modern, **cinematic** movie discovery app built with **React + TypeScript**
 using an **MVVM architecture**. Search movies across **TMDB** and **OMDb**,
 watch official trailers and short previews, save personal favorites, switch
 between **dark and light themes**, and explore curated grids like Popular,
-Now Playing, and Top Rated.
+Now Playing, and Top Rated — plus a **Featured** editorial spotlight and a
+premium **User Reviews** section.
 
 ## ✨ Features
 
@@ -38,6 +39,23 @@ page, and the hero play button.
 | Top Rated | 8 | 40 pages |
 
 Powered by a reusable paginated list viewmodel (`useMovieListViewModel`).
+
+### 🎯 Featured spotlight
+An editorial spotlight that sits directly below **Popular right now**. A large
+cinematic 16:9 video player (≈70%) is paired with a compact dark information
+panel (≈30%) — title, age rating, plot, cast, IMDb/runtime/year metadata, and
+genre pills. The player includes a translucent play button (opens the real
+TMDB trailer), an **interactive seek bar**, and fullscreen support. The
+section is **data-driven** from `constants/featuredContent.ts`, so it can
+later be swapped for CMS/API content without UI changes.
+
+### 💬 User Reviews
+A restrained, dark editorial reviews section shown as the last content block
+before the footer. A 2×2 desktop grid (single column on mobile) of minimal
+cards — review title, compact body text, and a footer with circular avatar,
+username, and a subtle **Read More** link. Review data lives in
+`constants/reviews.ts` and is rendered through reusable components, ready to
+be replaced by a real reviews API later.
 
 ### 🌗 Dark / light theme
 A persistent theme toggle (defaults to **dark**) stored in `localStorage`,
@@ -90,7 +108,10 @@ src/
 │   ├── authService.ts
 │   ├── firestoreService.ts
 │   └── healthService.ts     # connectivity checks for /health
-├── constants/         # static config (curated movie IDs)
+├── constants/         # static config (curated movie IDs, featured content, sample reviews)
+│   ├── featuredMovies.ts   # curated TMDB IDs for the default grid
+│   ├── featuredContent.ts  # Featured section data model + builder
+│   └── reviews.ts          # User Reviews data model + sample data
 ├── viewmodels/        # ViewModel: state hooks orchestrating services
 │   ├── useSearchMoviesViewModel.ts
 │   ├── useMovieListViewModel.ts    # paginated Popular/Now Playing/Top Rated
@@ -111,6 +132,8 @@ src/
 │   ├── layout/          (Navbar overlay variant, Footer, Layout)
 │   ├── hero/            (MovieHero, HeroBackground, HeroContent, PlayButton, CastList, MovieMetadata, GenreTags)
 │   ├── movie/           (SearchBar hero/default variant, MovieList, MovieCard, RatingBadge, VideoModal)
+│   ├── featured/        (FeaturedSection, FeaturedVideo + VideoControls, FeaturedInfo)
+│   ├── reviews/         (UserReviews, ReviewsHeader, ReviewsGrid, ReviewCard, Reviewer, …)
 │   └── settings/        (SettingsForm)
 ├── pages/              # View: route screens
 │   ├── HomePage.tsx, MovieDetailsPage.tsx, HealthCheckPage.tsx,
@@ -157,23 +180,18 @@ VITE_FIREBASE_APP_ID=your_app_id
 ```
 
 Important:
-<<<<<<< HEAD
-- This file **must live in the same folder as `package.json`** (the Vite
-  project root). Vite silently ignores env files placed anywhere else.
-- `VITE_OMDB_BASE_URL` has no built-in default or every OMDb call throws an `Invalid URL`
-  error. `/health` (see Features above) will flag this immediately.
-- Your OMDb key must be **activated** — after requesting one at the link
-  above, OMDb emails you an activation link; the key returns
-  `401 Invalid API key!` until you click it.
-- `.env.local` is git-ignored — never commit real API keys.
-=======
-- The file **must live beside `package.json`** — Vite silently ignores env
-  files anywhere else, and only reads them at server startup (restart the dev
-  server after editing).
-- `.env.local` is **git-ignored** — never commit real keys/tokens.
+- The file **must live in the same folder as `package.json`** (the Vite
+  project root). Vite silently ignores env files placed anywhere else, and
+  only reads them at server startup (restart the dev server after editing).
+- `VITE_OMDB_BASE_URL` has no built-in default, so every OMDb call throws an
+  `Invalid URL` error without it. `/health` (see Features below) will flag
+  this immediately.
+- Your OMDb key must be **activated** — after requesting one, OMDb emails
+  you an activation link; the key returns `401 Invalid API key!` until you
+  click it.
+- `.env.local` is git-ignored — never commit real API keys/tokens.
 - Set the same variables in your **Netlify** dashboard (Site settings →
   Environment variables) for production builds.
->>>>>>> d23c96b (Integrate TMDB API, add cinematic hero, theme toggle, trailers, and layout updates)
 
 ### 3. Set up Firebase
 
