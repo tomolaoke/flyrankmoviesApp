@@ -1,7 +1,11 @@
 /**
- * TMDB popular movie IDs for the landing page's default grid.
- * Fetched by TMDB ID via `getMovieDetails` and paginated client-side
- * (see `useFeaturedMoviesViewModel`).
+ * TMDB popular movie IDs for the landing page's default grid and the
+ * rotating hero/Featured spotlight.
+ *
+ * The grid is fetched by TMDB ID via `getMovieDetails` and paginated
+ * client-side (see `useFeaturedMoviesViewModel`). The same list powers the
+ * hero backdrop and Featured section, which advance to the next title every
+ * 8 hours (see `FEATURED_ROTATION_MS` in `useFeaturedMoviesViewModel`).
  */
 export const FEATURED_TMDB_IDS = [
   // Recent releases

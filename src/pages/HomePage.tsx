@@ -19,7 +19,7 @@ import { UserReviews } from '../components/reviews/UserReviews'
 export function HomePage() {
   const { query, movies, isLoading, error, hasSearched, search, loadMore, totalPages, currentPage } = useSearchMoviesViewModel()
   const { isFavorite, toggleFavorite } = useFavoritesViewModel()
-  const { movies: featuredMovies } = useFeaturedMoviesViewModel()
+  const { spotlight, featured } = useFeaturedMoviesViewModel()
   const popular = useMovieListViewModel('popular', { pageSize: 12, maxPages: 20 })
   const nowPlaying = useMovieListViewModel('now_playing', { pageSize: 8, maxPages: 5 })
   const topRated = useMovieListViewModel('top_rated', { pageSize: 8, maxPages: 40 })
@@ -37,9 +37,7 @@ export function HomePage() {
   }
 
   const canLoadMore = currentPage < totalPages
-  const spotlight = featuredMovies[0] ?? null
-  const featuredSpotlight = featuredMovies[1] ?? featuredMovies[0] ?? null
-  const featuredContent = buildFeaturedContent(featuredSpotlight)
+  const featuredContent = buildFeaturedContent(featured)
 
   const heroSearchBar = (
     <SearchBar initialValue={query} onSearch={search} isLoading={isLoading} variant="hero" />
@@ -106,7 +104,7 @@ export function HomePage() {
             <FeaturedSection
               content={featuredContent}
               onPlay={() => {
-                if (featuredSpotlight) handleWatchPreview(featuredSpotlight)
+                if (featured) handleWatchPreview(featured)
               }}
             />
 

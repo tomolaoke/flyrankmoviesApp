@@ -18,7 +18,8 @@ A Netflix-style, full-width hero section: layered backdrop image with dark
 cinematic overlays, a floating circular **play button**, large uppercase
 title, age-rating badge, cast avatars, IMDb/runtime/year metadata, and genre
 pills — all **data-driven** from the featured movie. The header floats
-transparently over it on the home page.
+transparently over it on the home page. The backdrop movie **rotates to a
+new curated title every 8 hours**.
 
 ### 🔍 Movie search (TMDB + OMDb)
 - **TMDB search** as the primary source — richer results with official
@@ -47,7 +48,11 @@ panel (≈30%) — title, age rating, plot, cast, IMDb/runtime/year metadata, an
 genre pills. The player includes a translucent play button (opens the real
 TMDB trailer), an **interactive seek bar**, and fullscreen support. The
 section is **data-driven** from `constants/featuredContent.ts`, so it can
-later be swapped for CMS/API content without UI changes.
+later be swapped for CMS/API content without UI changes. Both the hero
+backdrop and this spotlight **advance to the next curated movie every
+8 hours** — `useFeaturedMoviesViewModel` derives them from the current
+8-hour time slot, cycling through the curated titles in
+`constants/featuredMovies.ts`.
 
 ### 💬 User Reviews
 A restrained, dark editorial reviews section shown as the last content block
@@ -115,7 +120,7 @@ src/
 ├── viewmodels/        # ViewModel: state hooks orchestrating services
 │   ├── useSearchMoviesViewModel.ts
 │   ├── useMovieListViewModel.ts    # paginated Popular/Now Playing/Top Rated
-│   ├── useFeaturedMoviesViewModel.ts
+│   ├── useFeaturedMoviesViewModel.ts  # curated list + 8h rotating hero/Featured spotlight
 │   ├── useMovieDetailViewModel.ts  # routes tmdb-* vs tt* IDs
 │   ├── useMovieRating.ts
 │   ├── useAuthViewModel.ts
@@ -268,5 +273,9 @@ vars, does a live fetch, and probes Firestore/Auth in one place.
   batched/cached — fine for free tiers).
 - "Popular right now" is a live TMDB feed paginated client-side (12/page, up
   to 20 pages); Now Playing and Top Rated are 8/page.
+- The hero/Featured spotlight rotates every **8 hours**, cycling through the
+  currently loaded page of curated `FEATURED_TMDB_IDS` (10 titles on page 1).
+  The page picks up the next title automatically if it stays open across a
+  slot boundary.
 - Firestore security relies entirely on the rules above — there's no backend
   re-checking ownership.
