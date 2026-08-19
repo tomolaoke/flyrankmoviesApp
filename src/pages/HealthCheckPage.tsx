@@ -15,7 +15,7 @@ const FALLBACK_POSTER =
  * for developers verifying local/deploy setup.
  */
 export function HealthCheckPage() {
-  const { envVars, omdb, firestore, isChecking, runChecks } = useHealthCheckViewModel()
+  const { envVars, omdb, tmdb, firestore, isChecking, runChecks } = useHealthCheckViewModel()
   const { user, isLoading: isAuthLoading } = useAuthContext()
 
   const missingEnvVars = envVars.filter((v) => !v.present)
@@ -89,6 +89,52 @@ export function HealthCheckPage() {
               {omdb.sampleMovies.length > 0 && (
                 <ul className="flex flex-wrap gap-3" aria-label="Sample fetched movies">
                   {omdb.sampleMovies.map((movie) => (
+                    <li key={movie.imdbID} className="flex w-24 flex-col gap-1 text-center">
+                      <img
+                        src={movie.poster || FALLBACK_POSTER}
+                        alt={`Poster for ${movie.title}`}
+                        className="aspect-[2/3] w-full rounded object-cover"
+                      />
+                      <span className="truncate text-xs text-gray-700 dark:text-gray-300" title={movie.title}>
+                        {movie.title}
+                      </span>
+                      <span className="text-[11px] text-gray-400 dark:text-gray-500">{movie.year}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* TMDB API */}
+        <section
+          className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+          aria-labelledby="tmdb-heading"
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 id="tmdb-heading" className="text-base font-semibold text-gray-900 dark:text-white">
+              TMDB API
+            </h2>
+            {tmdb && (
+              <StatusButton
+                status={tmdb.status === 'ok' ? 'ok' : 'error'}
+                label={tmdb.status === 'ok' ? 'Connected' : 'Failed'}
+                disabled
+              />
+            )}
+          </div>
+
+          {isChecking && !tmdb && <Spinner label="Checking TMDB" />}
+
+          {tmdb && (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {tmdb.message} <span className="text-gray-400 dark:text-gray-500">({tmdb.latencyMs}ms)</span>
+              </p>
+              {tmdb.sampleMovies.length > 0 && (
+                <ul className="flex flex-wrap gap-3" aria-label="Sample fetched movies">
+                  {tmdb.sampleMovies.map((movie) => (
                     <li key={movie.imdbID} className="flex w-24 flex-col gap-1 text-center">
                       <img
                         src={movie.poster || FALLBACK_POSTER}

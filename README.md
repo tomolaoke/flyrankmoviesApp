@@ -58,9 +58,14 @@ backdrop and this spotlight **advance to the next curated movie every
 A restrained, dark editorial reviews section shown as the last content block
 before the footer. A 2×2 desktop grid (single column on mobile) of minimal
 cards — review title, compact body text, and a footer with circular avatar,
-username, and a subtle **Read More** link. Review data lives in
-`constants/reviews.ts` and is rendered through reusable components, ready to
-be replaced by a real reviews API later.
+username, and a subtle **Read More** link. The section is now **data-driven**:
+it fetches the real **TMDB reviews** for the currently-featured movie (the
+same title the hero/spotlight shows) via `getMovieReviews()` in
+`tmdbService.ts`. When a user is signed in, their own **Firestore reviews**
+(`users/{uid}/reviews`) stream in alongside and are marked with a small
+**Firestore** badge. It falls back to the curated sample data in
+`constants/reviews.ts` while the featured movie is still loading or if TMDB
+has no reviews for it, so the section is never empty.
 
 ### 🌗 Dark / light theme
 A persistent theme toggle (defaults to **dark**) stored in `localStorage`,
@@ -77,9 +82,9 @@ Update email, password, and notification preferences through a
 `react-hook-form` + `zod` validated form.
 
 ### 🩺 Health check
-`/health` (the red **Status** pill in the header) verifies env vars, runs a
-live API fetch, probes Firestore, and shows Firebase Auth state — perfect for
-diagnosing setup issues.
+`/health` (the red **Status** pill in the header) verifies env vars, runs live
+API fetches against both **TMDB** and **OMDb**, probes Firestore, and shows
+Firebase Auth state — perfect for diagnosing setup issues.
 
 ### 📱 Responsive & accessible
 Hamburger navigation on mobile, adaptive grid columns, `aria` labels,
@@ -108,15 +113,15 @@ src/
 │   ├── User.ts
 │   └── Settings.ts
 ├── services/          # Model: talks to external systems
-│   ├── tmdbService.ts       # TMDB search, lists, details, videos, trailers
+│   ├── tmdbService.ts       # TMDB search, lists, details, videos, trailers, reviews
 │   ├── omdbService.ts       # OMDb fallback
 │   ├── authService.ts
-│   ├── firestoreService.ts
-│   └── healthService.ts     # connectivity checks for /health
+│   ├── firestoreService.ts  # favorites + settings + user reviews (users/{uid}/…)
+│   └── healthService.ts     # connectivity checks for /health (TMDB, OMDb, Firestore)
 ├── constants/         # static config (curated movie IDs, featured content, sample reviews)
 │   ├── featuredMovies.ts   # curated TMDB IDs for the default grid
 │   ├── featuredContent.ts  # Featured section data model + builder
-│   └── reviews.ts          # User Reviews data model + sample data
+│   └── reviews.ts          # User Reviews data model + sample fallback data
 ├── viewmodels/        # ViewModel: state hooks orchestrating services
 │   ├── useSearchMoviesViewModel.ts
 │   ├── useMovieListViewModel.ts    # paginated Popular/Now Playing/Top Rated
@@ -126,6 +131,7 @@ src/
 │   ├── useAuthViewModel.ts
 │   ├── useFavoritesViewModel.ts
 │   ├── useSettingsViewModel.ts
+│   ├── useUserReviewsViewModel.ts  # TMDB + Firestore reviews for the User Reviews section
 │   └── useHealthCheckViewModel.ts
 ├── context/           # cross-cutting app state
 │   ├── AuthContext.tsx
@@ -145,7 +151,7 @@ src/
 │   ├── LoginPage.tsx, SignupPage.tsx, FavoritesPage.tsx, SettingsPage.tsx
 ├── routes/             # AppRouter.tsx, ProtectedRoute.tsx
 ├── schemas/            # zod validation schemas
-└── config/             # firebase.ts initialization
+└── config/             # firebase.ts + env.ts (env reads isolated for testability)
 ```
 
 **Why MVVM:** Views never call `fetch` or the Firebase SDK — they read state
@@ -212,10 +218,16 @@ Important:
          match /favorites/{movieId} {
            allow read, write: if request.auth != null && request.auth.uid == userId;
          }
+         match /reviews/{reviewId} {
+           allow read, write: if request.auth != null && request.auth.uid == userId;
+         }
        }
      }
    }
    ```
+   The parent `users/{userId}` rule already cascades to subcollections, so
+   the explicit `favorites`/`reviews` matches are optional — they're listed
+   here for clarity.
 4. Register a **Web app** and copy its config into `.env.local` (use the
    `appId`, not the Analytics `measurementId`).
 
@@ -244,6 +256,21 @@ npm run preview
 | `npm run lint` | Run ESLint |
 | `npm test` | Run the Jest suite once |
 | `npm run test:watch` | Run Jest in watch mode |
+
+## 🧪 Testing
+
+The Jest suite (jsdom) verifies unit logic and the TMDB integration:
+
+| Suite | What it covers |
+| --------- | --------- |
+| `healthService.test.ts` | Required env vars include the TMDB token/base URL; `checkTmdbConnection()` reports a real search result or a readable failure |
+| `useMovieListViewModel.test.ts` | Loads TMDB lists, applies `pageSize`, caps `totalPages` at `maxPages`, surfaces errors |
+| `SettingsForm.test.tsx` | Form validation + submit behavior |
+
+`import.meta.env` is isolated behind `src/config/env.ts` (mocked in tests)
+because Jest's CommonJS transform rejects `import.meta` — this keeps
+service/viewmodel modules loadable under Jest. Run with `npm test`
+(current: **16 tests passing**).
 
 ## 🔒 Security notes
 
@@ -279,3 +306,7 @@ vars, does a live fetch, and probes Firestore/Auth in one place.
   slot boundary.
 - Firestore security relies entirely on the rules above — there's no backend
   re-checking ownership.
+- User Reviews fetches TMDB reviews for the currently-featured movie (capped
+  to 6 cards) and streams the signed-in user's Firestore reviews on top.
+  Writing Firestore reviews (a submission UI) is intentionally out of scope —
+  the read path works out of the box with the existing user-scoped rules.

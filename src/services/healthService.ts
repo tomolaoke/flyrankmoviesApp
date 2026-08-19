@@ -6,10 +6,14 @@
  */
 import { collection, getDocs, limit, query } from 'firebase/firestore'
 import { db } from '../config/firebase'
+import { getEnv } from '../config/env'
 import type { Movie } from '../models/Movie'
 import { searchMovies } from './omdbService'
+import { searchMoviesTmdb } from './tmdbService'
 
-const REQUIRED_ENV_VARS = [
+export const REQUIRED_ENV_VARS = [
+  'VITE_TMDB_API_TOKEN',
+  'VITE_TMDB_BASE_URL',
   'VITE_OMDB_API_KEY',
   'VITE_OMDB_BASE_URL',
   'VITE_FIREBASE_API_KEY',
@@ -29,7 +33,7 @@ export interface EnvVarCheck {
 export function checkEnvVars(): EnvVarCheck[] {
   return REQUIRED_ENV_VARS.map((name) => ({
     name,
-    present: Boolean(import.meta.env[name]),
+    present: Boolean(getEnv(name)),
   }))
 }
 
@@ -48,6 +52,34 @@ export async function checkOmdbConnection(): Promise<OmdbHealthResult> {
     return {
       status: 'ok',
       message: `Fetched ${movies.length} result(s) for a test search ("batman").`,
+      latencyMs: Math.round(performance.now() - startedAt),
+      sampleMovies: movies.slice(0, 5),
+    }
+  } catch (err) {
+    return {
+      status: 'error',
+      message: err instanceof Error ? err.message : 'Unknown error',
+      latencyMs: Math.round(performance.now() - startedAt),
+      sampleMovies: [],
+    }
+  }
+}
+
+export interface TmdbHealthResult {
+  status: 'ok' | 'error'
+  message: string
+  latencyMs: number
+  sampleMovies: Movie[]
+}
+
+/** Runs a real TMDB search so the page can render actually-fetched data, not just a ping. */
+export async function checkTmdbConnection(): Promise<TmdbHealthResult> {
+  const startedAt = performance.now()
+  try {
+    const { movies } = await searchMoviesTmdb('barbie')
+    return {
+      status: 'ok',
+      message: `Fetched ${movies.length} result(s) for a test search ("barbie").`,
       latencyMs: Math.round(performance.now() - startedAt),
       sampleMovies: movies.slice(0, 5),
     }

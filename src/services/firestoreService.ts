@@ -18,6 +18,7 @@ import {
 import { db } from '../config/firebase'
 import type { FavoriteMovie, Movie } from '../models/Movie'
 import type { UserSettings } from '../models/Settings'
+import type { Review } from '../constants/reviews'
 
 function favoritesCollection(uid: string) {
   return collection(db, 'users', uid, 'favorites')
@@ -52,4 +53,42 @@ export async function getUserSettings(uid: string): Promise<Partial<UserSettings
 
 export async function saveUserSettings(uid: string, settings: UserSettings): Promise<void> {
   await setDoc(doc(db, 'users', uid), settings, { merge: true })
+}
+
+/** Shape of a review document under `users/{uid}/reviews/{id}`. */
+interface StoredUserReview {
+  title: string
+  content: string
+  author: string
+  avatar: string
+  createdAt: number
+}
+
+function reviewsCollection(uid: string) {
+  return collection(db, 'users', uid, 'reviews')
+}
+
+/**
+ * Subscribes to the signed-in user's own Firestore reviews in real time.
+ * Read-only: writing reviews (a submission UI) is intentionally out of
+ * scope for now and would additionally require a Firestore rule update.
+ */
+export function subscribeToUserReviews(uid: string, onChange: (reviews: Review[]) => void): Unsubscribe {
+  return onSnapshot(reviewsCollection(uid), (snapshot) => {
+    const reviews = snapshot.docs
+      .map((doc) => {
+        const data = doc.data() as StoredUserReview
+        return {
+          id: doc.id,
+          title: data.title,
+          content: data.content,
+          author: data.author,
+          avatar: data.avatar,
+          source: 'firestore' as const,
+          createdAt: data.createdAt,
+        }
+      })
+      .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))
+    onChange(reviews)
+  })
 }

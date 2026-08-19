@@ -22,7 +22,14 @@ export function ReviewCard({ review, variant = 'dark' }: ReviewCardProps) {
     <article
       className={`flex flex-col gap-4 rounded-lg border border-white/10 p-6 transition-colors duration-200 hover:border-white/25 ${VARIANT_CLASSES[variant]}`}
     >
-      <ReviewTitle>{review.title}</ReviewTitle>
+      <div className="flex items-start justify-between gap-3">
+        <ReviewTitle>{review.title}</ReviewTitle>
+        {review.source === 'firestore' && (
+          <span className="shrink-0 rounded-full border border-brand-400/40 bg-brand-500/15 px-2 py-0.5 text-[10px] font-semibold text-brand-400">
+            Firestore
+          </span>
+        )}
+      </div>
       <ReviewContent>{review.content}</ReviewContent>
       <ReviewFooter review={review} />
     </article>

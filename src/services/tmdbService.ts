@@ -3,6 +3,7 @@
  * wire format and maps it into our internal models.
  */
 import type { Movie, MovieDetail } from '../models/Movie'
+import { initialsAvatar, type Review } from '../constants/reviews'
 
 const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL
 const API_TOKEN = import.meta.env.VITE_TMDB_API_TOKEN
@@ -150,6 +151,74 @@ export function findBestTrailer(videos: TmdbVideoRaw[]): TmdbVideoRaw | null {
 /** Build YouTube embed URL with autoplay. */
 export function buildYouTubeEmbedUrl(key: string): string {
   return `https://www.youtube.com/embed/${key}?autoplay=1&rel=0`
+}
+
+interface TmdbReviewAuthorDetailsRaw {
+  name: string
+  username: string
+  avatar_path: string | null
+  rating: number | null
+}
+
+interface TmdbReviewRaw {
+  id: string
+  author: string
+  author_details: TmdbReviewAuthorDetailsRaw
+  content: string
+  created_at: string
+}
+
+interface TmdbReviewsResponseRaw {
+  id: number
+  results: TmdbReviewRaw[]
+}
+
+/**
+ * TMDB's avatar_path can be an absolute URL prefixed with a slash, a
+ * relative TMDB image path, or null — normalize all three to an image src.
+ */
+function mapTmdbAvatar(avatarPath: string | null, author: string): string {
+  if (!avatarPath) return initialsAvatar(author, '%23475569')
+  if (avatarPath.startsWith('/http')) return avatarPath.slice(1)
+  return `https://image.tmdb.org/t/p/w185${avatarPath}`
+}
+
+/** TMDB reviews have no title field, so derive a short headline from the content. */
+function deriveReviewTitle(content: string, author: string): string {
+  const cleaned = content.replace(/\s+/g, ' ').trim()
+  const sentence = cleaned.split(/[.!?]/, 1)[0]?.trim()
+  if (!sentence) return `Review by ${author}`
+  return sentence.length > 48 ? `${sentence.slice(0, 45).trimEnd()}…` : sentence
+}
+
+/** Fetch reviews for a movie by TMDB ID, mapped to the app's Review model. */
+export async function getMovieReviews(tmdbId: number): Promise<Review[]> {
+  assertApiToken()
+
+  const url = new URL(`${BASE_URL}/movie/${tmdbId}/reviews`)
+  url.searchParams.set('language', 'en-US')
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: getHeaders(),
+  })
+
+  if (!response.ok) {
+    throw new TmdbApiError(`TMDB reviews request failed with status ${response.status}`)
+  }
+
+  const data = (await response.json()) as TmdbReviewsResponseRaw
+
+  return (data.results ?? []).map((raw) => ({
+    id: `tmdb-${raw.id}`,
+    title: deriveReviewTitle(raw.content, raw.author),
+    content: raw.content,
+    author: raw.author_details?.name || raw.author || 'Anonymous',
+    avatar: mapTmdbAvatar(raw.author_details?.avatar_path ?? null, raw.author),
+    rating: raw.author_details?.rating ?? undefined,
+    createdAt: raw.created_at ? Date.parse(raw.created_at) : undefined,
+    source: 'tmdb' as const,
+  }))
 }
 
 interface TmdbMovieDetailRaw {

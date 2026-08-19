@@ -11,6 +11,7 @@ import { useSearchMoviesViewModel } from '../viewmodels/useSearchMoviesViewModel
 import { useFavoritesViewModel } from '../viewmodels/useFavoritesViewModel'
 import { useFeaturedMoviesViewModel } from '../viewmodels/useFeaturedMoviesViewModel'
 import { useMovieListViewModel } from '../viewmodels/useMovieListViewModel'
+import { useUserReviewsViewModel } from '../viewmodels/useUserReviewsViewModel'
 import { FeaturedSection } from '../components/featured/FeaturedSection'
 import { buildFeaturedContent } from '../constants/featuredContent'
 import { UserReviews } from '../components/reviews/UserReviews'
@@ -23,6 +24,7 @@ export function HomePage() {
   const popular = useMovieListViewModel('popular', { pageSize: 12, maxPages: 20 })
   const nowPlaying = useMovieListViewModel('now_playing', { pageSize: 8, maxPages: 5 })
   const topRated = useMovieListViewModel('top_rated', { pageSize: 8, maxPages: 40 })
+  const { reviews: userReviews } = useUserReviewsViewModel(featured?.tmdbId)
 
   const [videoModalMovie, setVideoModalMovie] = useState<{ tmdbId: number; title: string } | null>(null)
 
@@ -157,7 +159,7 @@ export function HomePage() {
         )}
 
         {/* User Reviews */}
-        <UserReviews />
+        <UserReviews reviews={userReviews} />
       </main>
 
       {/* Video Preview Modal */}

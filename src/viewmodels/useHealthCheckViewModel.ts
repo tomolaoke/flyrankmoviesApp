@@ -7,21 +7,29 @@ import {
   checkEnvVars,
   checkFirestoreConnection,
   checkOmdbConnection,
+  checkTmdbConnection,
   type EnvVarCheck,
   type FirestoreHealthResult,
   type OmdbHealthResult,
+  type TmdbHealthResult,
 } from '../services/healthService'
 
 export function useHealthCheckViewModel() {
   const [envVars] = useState<EnvVarCheck[]>(() => checkEnvVars())
   const [omdb, setOmdb] = useState<OmdbHealthResult | null>(null)
+  const [tmdb, setTmdb] = useState<TmdbHealthResult | null>(null)
   const [firestore, setFirestore] = useState<FirestoreHealthResult | null>(null)
   const [isChecking, setIsChecking] = useState(false)
 
   const runChecks = useCallback(async () => {
     setIsChecking(true)
-    const [omdbResult, firestoreResult] = await Promise.all([checkOmdbConnection(), checkFirestoreConnection()])
+    const [omdbResult, tmdbResult, firestoreResult] = await Promise.all([
+      checkOmdbConnection(),
+      checkTmdbConnection(),
+      checkFirestoreConnection(),
+    ])
     setOmdb(omdbResult)
+    setTmdb(tmdbResult)
     setFirestore(firestoreResult)
     setIsChecking(false)
   }, [])
@@ -32,5 +40,5 @@ export function useHealthCheckViewModel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { envVars, omdb, firestore, isChecking, runChecks }
+  return { envVars, omdb, tmdb, firestore, isChecking, runChecks }
 }
